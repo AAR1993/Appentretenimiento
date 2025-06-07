@@ -1,0 +1,22 @@
+[
+  {
+    "nombre": "Restaurante A",
+    "descripcion": "Un gran lugar para comer.",
+    "ubicacion": {
+      "latitud": 19.432608,
+      "longitud": -99.133209
+    },
+    "imagen": "url-a-la-imagen",
+    "horario": "9 AM - 9 PM"
+  },
+  {
+    "nombre": "Mirador B",
+    "descripcion": "Vistas impresionantes.",
+    "ubicacion": {
+      "latitud": 19.396218,
+      "longitud": -99.164820
+    },
+    "imagen": "url-a-la-imagen",
+    "horario": "6 AM - 6 PM"
+  }
+]

@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Nuestros productos y lugares disponibles">
+    <title>Productos - Guía de Lugares</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Skip link para accesibilidad -->
+    <a href="#main-content" class="skip-link">Saltar al contenido principal</a>
+
+    <header role="banner">
+        <div class="menu container">
+            <h1 class="site-title">Guía de Lugares</h1>
+            
+            <nav class="navbar" role="navigation" aria-label="Menú principal">
+                <button id="menu-toggle" aria-expanded="false" aria-controls="main-menu" class="menu-button">
+                    <span class="sr-only">Abrir menú</span>
+                    <span class="menu-icon"></span>
+                </button>
+
+                <div id="main-menu" class="menu-1">
+                    <ul role="menubar">
+                        <li role="none"><a href="index.html" role="menuitem" onclick="return navegarA('index.html')">Inicio</a></li>
+                        <li role="none"><a href="index.html#servicios" role="menuitem" onclick="return navegarA('index.html#servicios')">Servicios</a></li>
+                        <li role="none"><a href="productos.html" role="menuitem" onclick="return navegarA('productos.html')">Productos</a></li>
+                        <li role="none"><a href="/login.html" class="logout-btn" role="menuitem" onclick="return cerrarSesion()">Cerrar Sesión</a></li>
+                    </ul>
+                </div>
+
+                <div class="menu-2">
+                    <h2 id="social-heading" class="sr-only">Redes Sociales</h2>
+                    <ul aria-labelledby="social-heading">
+                        <li><a href="#" aria-label="Visita nuestra página de Facebook">
+                            <div class="social">
+                                <img src="imgs/facebook.png" alt="" aria-hidden="true">
+                                <span class="sr-only">Facebook</span>
+                            </div>
+                        </a></li>
+                        <li><a href="#" aria-label="Síguenos en Instagram">
+                            <div class="social">
+                                <img src="imgs/Instagram.png" alt="" aria-hidden="true">
+                                <span class="sr-only">Instagram</span>
+                            </div>
+                        </a></li>
+                    </ul>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main id="main-content" role="main">
+        <section class="lugares-section" aria-labelledby="lugares-heading">
+            <div class="container">
+                <h1 id="lugares-heading">Nuestros Lugares</h1>
+                <div class="search-container">
+                    <input 
+                        type="text" 
+                        id="search-input" 
+                        placeholder="Buscar lugares..." 
+                        aria-label="Buscar lugares por nombre"
+                    >
+                </div>
+                <div id="lista-lugares" role="list" class="places-list" aria-label="Lista de lugares disponibles"></div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        async function cargarLugares() {
+            const listaLugares = document.getElementById('lista-lugares');
+            const searchInput = document.getElementById('search-input');
+            
+            try {
+                const response = await fetch('http://localhost:3000/api/lugares', {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Cache-Control': 'no-cache'
+                    },
+                    credentials: 'same-origin'
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const lugares = await response.json();
+                
+                function mostrarLugares(lugaresAMostrar) {
+                    if (!Array.isArray(lugaresAMostrar)) {
+                        console.error('Los datos recibidos no son un array:', lugaresAMostrar);
+                        listaLugares.innerHTML = '<p class="error-message">Error en el formato de datos recibidos.</p>';
+                        return;
+                    }
+
+                    if (lugaresAMostrar.length === 0) {
+                        listaLugares.innerHTML = '<p class="no-results">No hay lugares disponibles que coincidan con tu búsqueda.</p>';
+                        return;
+                    }
+
+                    listaLugares.innerHTML = '';
+                    lugaresAMostrar.forEach(lugar => {
+                        if (!lugar) return; // Skip if lugar is null or undefined
+                        
+                        const card = document.createElement('div');
+                        card.className = 'lugar-item';
+                        
+                        const imagenUrl = lugar.imagen || '/imgs/republica.png';
+                        
+                        card.innerHTML = `
+                            <div class="imagen-container">
+                                <img src="${imagenUrl}" 
+                                     alt="Imagen de ${lugar.nombre || 'Lugar'}" 
+                                     class="lugar-image" 
+                                     onerror="this.src='/imgs/republica.png'">
+                            </div>
+                            <div class="lugar-content">
+                                <h3>${lugar.nombre || 'Sin nombre'}</h3>
+                                <p>${lugar.descripcion || 'Sin descripción'}</p>
+                                <p><strong>Horario:</strong> ${lugar.horario || 'Horario no disponible'}</p>
+                                ${lugar.ubicacion ? `<a href="${lugar.ubicacion}" target="_blank" rel="noopener noreferrer" class="btn-1">Ver ubicación</a>` : ''}
+                            </div>
+                        `;
+                        listaLugares.appendChild(card);
+                    });
+                }
+
+                // Mostrar todos los lugares inicialmente
+                mostrarLugares(lugares);
+
+                // Configurar la búsqueda con debounce
+                let timeoutId;
+                searchInput.addEventListener('input', () => {
+                    clearTimeout(timeoutId);
+                    timeoutId = setTimeout(() => {
+                        const searchTerm = searchInput.value.toLowerCase().trim();
+                        const lugaresFiltered = lugares.filter(lugar => 
+                            lugar && (
+                                (lugar.nombre && lugar.nombre.toLowerCase().includes(searchTerm)) ||
+                                (lugar.descripcion && lugar.descripcion.toLowerCase().includes(searchTerm))
+                            )
+                        );
+                        mostrarLugares(lugaresFiltered);
+                    }, 300); // 300ms delay
+                });
+
+            } catch (error) {
+                console.error('Error al cargar lugares:', error);
+                listaLugares.innerHTML = `
+                    <p class="error-message">
+                        Error al cargar los lugares. Por favor, intente más tarde o verifique que el servidor esté corriendo.<br>
+                        Detalles: ${error.message}
+                    </p>`;
+            }
+        }
+
+        // Esperar a que el DOM esté completamente cargado
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', cargarLugares);
+        } else {
+            cargarLugares();
+        }
+
+        // Manejo del menú móvil
+        const menuToggle = document.getElementById('menu-toggle');
+        if (menuToggle) {
+            menuToggle.addEventListener('click', function() {
+                const mainMenu = document.getElementById('main-menu');
+                const isExpanded = this.getAttribute('aria-expanded') === 'true';
+                this.setAttribute('aria-expanded', String(!isExpanded));
+                mainMenu.classList.toggle('active');
+            });
+        }
+
+        // Función para manejar la navegación
+        function navegarA(destino) {
+            try {
+                if (destino === window.location.pathname) {
+                    // Si estamos en la misma página, recargar suavemente
+                    window.location.reload();
+                } else {
+                    // Navegación normal a otra página
+                    window.location.href = destino;
+                }
+            } catch (error) {
+                console.error('Error en la navegación:', error);
+            }
+            return false; // Prevenir comportamiento por defecto
+        }
+
+        // Función para cerrar sesión
+        function cerrarSesion() {
+            try {
+                // Aquí puedes agregar la lógica de cierre de sesión
+                window.location.href = '/login.html';
+            } catch (error) {
+                console.error('Error al cerrar sesión:', error);
+            }
+            return false;
+        }
+    </script>
+</body>
+</html>

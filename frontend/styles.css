@@ -1,0 +1,33 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: #121212;
+}
+
+header {
+    background: #dc0505;
+    color: rgb(18, 18, 18);
+    padding: 10px;
+}
+
+h1, h2 {
+    margin: 0;
+}
+
+#search-input {
+    padding: 8px;
+    margin-right: 5px;
+}
+
+#lista-lugares {
+    padding: 20px;
+}
+
+#lista-lugares div {
+    background: white;
+    margin-bottom: 15px;
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}

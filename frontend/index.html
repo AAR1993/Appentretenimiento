@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Descubre los mejores lugares para visitar, incluyendo restaurantes, centros comerciales, miradores y bares">
+    <title>Guía de Lugares - Inicio</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Skip link para accesibilidad -->
+    <a href="#main-content" class="skip-link">Saltar al contenido principal</a>
+
+    <header role="banner">
+        <div class="menu container">
+            <h1 class="site-title">Guía de Lugares</h1>
+            
+            <nav class="navbar" role="navigation" aria-label="Menú principal">
+                <button id="menu-toggle" aria-expanded="false" aria-controls="main-menu" class="menu-button">
+                    <span class="sr-only">Abrir menú</span>
+                    <span class="menu-icon"></span>
+                </button>
+
+                <div id="main-menu" class="menu-1">
+                    <ul role="menubar">
+                        <li role="none"><a href="index.html" role="menuitem" onclick="return navegarA('index.html')">Inicio</a></li>
+                        <li role="none"><a href="#servicios" role="menuitem" onclick="return navegarA('#servicios')">Servicios</a></li>
+                        <li role="none"><a href="productos.html" role="menuitem" onclick="return navegarA('productos.html')">Productos</a></li>
+                        <li role="none"><a href="/login.html" class="logout-btn" role="menuitem" onclick="return cerrarSesion()">Cerrar Sesión</a></li>
+                    </ul>
+                </div>
+
+                <div class="menu-2">
+                    <h2 id="social-heading" class="sr-only">Redes Sociales</h2>
+                    <ul aria-labelledby="social-heading">
+                        <li><a href="#" aria-label="Visita nuestra página de Facebook">
+                            <div class="social">
+                                <img src="imgs/facebook.png" alt="" aria-hidden="true">
+                                <span class="sr-only">Facebook</span>
+                            </div>
+                        </a></li>
+                        <li><a href="#" aria-label="Síguenos en Instagram">
+                            <div class="social">
+                                <img src="imgs/Instagram.png" alt="" aria-hidden="true">
+                                <span class="sr-only">Instagram</span>
+                            </div>
+                        </a></li>
+                    </ul>
+                </div>
+            </nav>
+        </div>
+
+        <div class="header-content container">
+            <div class="swiper mySwiper-1" role="region" aria-label="Carrusel de lugares destacados">
+                <div class="swiper-wrapper">
+                    <!-- Restaurante -->
+                    <div class="swiper-slide" role="group" aria-label="Slide 1: Restaurante">
+                        <div class="slider">
+                            <div class="slider-txt">
+                                <h1>Restaurante</h1>
+                                <p>Bienvenido a los Restaurantes, donde la tradición y el sabor se encuentran. Disfruta de una experiencia gastronómica única con platos preparados con ingredientes frescos y un servicio excepcional en un ambiente cálido y acogedor.</p>
+                                <div class="botones" role="group" aria-label="Acciones de restaurante">
+                                    <a href="#" class="btn-1" role="button">Ubicación</a>
+                                    <a href="productos.html" class="btn-1" role="button">Ver Todos</a>
+                                </div>
+                            </div>
+                            <div class="slider-img">
+                                <img src="imgs/republica.png" alt="Interior del Restaurante República mostrando mesas y decoración" width="400" height="300">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Centro Comercial -->
+                    <div class="swiper-slide" role="group" aria-label="Slide 2: Centro Comercial">
+                        <div class="slider">
+                            <div class="slider-txt">
+                                <h2>Centro Comerciales</h2>
+                                <p>Los centros Comerciales son espacios modernos y versátiles donde encontrarás las mejores marcas, una variada oferta gastronómica, salas de cine, y actividades para toda la familia. Con acceso fácil, seguridad 24/7 y más de 200 locales.</p>
+                                <div class="botones" role="group" aria-label="Acciones de centro comercial">
+                                    <a href="#" class="btn-1" role="button">Ubicación</a>
+                                    <a href="productos.html" class="btn-1" role="button">Ver Todos</a>
+                                </div>
+                            </div>
+                            <div class="slider-img">
+                                <img src="imgs/37Park.png" alt="Fachada del Centro Comercial 37 Park" width="400" height="300">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Mirador -->
+                    <div class="swiper-slide" role="group" aria-label="Slide 3: Mirador">
+                        <div class="slider">
+                            <div class="slider-txt">
+                                <h2>Miradores</h2>
+                                <p>Los miradores son puntos elevados y estratégicos desde los cuales se puede observar y apreciar paisajes naturales, urbanos o turísticos de gran belleza o interés.</p>
+                                <div class="botones" role="group" aria-label="Acciones de mirador">
+                                    <a href="#" class="btn-1" role="button">Ubicación</a>
+                                    <a href="productos.html" class="btn-1" role="button">Ver Todos</a>
+                                </div>
+                            </div>
+                            <div class="slider-img">
+                                <img src="imgs/mombasa.png" alt="Vista panorámica desde el Mirador Mombasa" width="400" height="300">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bar -->
+                    <div class="swiper-slide" role="group" aria-label="Slide 4: Bar">
+                        <div class="slider">
+                            <div class="slider-txt">
+                                <h2>Bar</h2>
+                                <p>En los Bares, cada noche es una experiencia diferente. Disfruta de una carta de cócteles únicos, cervezas artesanales y un ambiente diseñado para relajarte y compartir con amigos.</p>
+                                <div class="botones" role="group" aria-label="Acciones de bar">
+                                    <a href="#" class="btn-1" role="button">Ubicación</a>
+                                    <a href="productos.html" class="btn-1" role="button">Ver Todos</a>
+                                </div>
+                            </div>
+                            <div class="slider-img">
+                                <img src="imgs/rooftop.png" alt="Ambiente nocturno del Bar Rooftop" width="400" height="300">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Controles del carrusel -->
+                <div class="swiper-pagination" role="tablist"></div>
+                <button class="swiper-button-prev" aria-label="Anterior slide"></button>
+                <button class="swiper-button-next" aria-label="Siguiente slide"></button>
+            </div>
+        </div>
+    </header>
+
+    <main id="main-content" role="main">
+        <section class="info-section" aria-labelledby="info-heading">
+            <h2 id="info-heading">Información</h2>
+            <p>Descubre los mejores lugares para visitar en la ciudad, desde restaurantes hasta miradores con vistas espectaculares.</p>
+            <a href="productos.html" class="btn-1" role="button">Ver Todos los Lugares</a>
+        </section>
+
+        <section id="servicios" class="servicios-section" aria-labelledby="servicios-heading">
+            <div class="container">
+                <h2 id="servicios-heading">Nuestros Servicios</h2>
+                <div class="servicios-grid">
+                    <div class="servicio-item">
+                        <h3>Restaurantes</h3>
+                        <p>Descubre la mejor gastronomía local e internacional</p>
+                    </div>
+                    <div class="servicio-item">
+                        <h3>Bares</h3>
+                        <p>Disfruta de las mejores bebidas y ambiente nocturno</p>
+                    </div>
+                    <div class="servicio-item">
+                        <h3>Centros Comerciales</h3>
+                        <p>Explora las mejores opciones de compras y entretenimiento</p>
+                    </div>
+                    <div class="servicio-item">
+                        <h3>Miradores</h3>
+                        <p>Contempla las vistas más espectaculares de la ciudad</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="horario-section" aria-labelledby="horario-heading">
+            <div class="Horario-info container">
+                <h2 id="horario-heading">Horario</h2>
+                <div class="Horario-txt">
+                    <div class="txt">
+                        <h3>Dirección</h3>
+                        <p>Cr85#64-45</p>
+                    </div>
+                    <div class="txt">
+                        <h3>Horario de Atención</h3>
+                        <p>Lunes a Viernes: 2 pm a 10 pm</p>
+                        <p>Sábados y Domingo: 11 am a 11 pm</p>
+                    </div>
+                    <div class="txt">
+                        <h3>Teléfono</h3>
+                        <p><a href="tel:+555555" aria-label="Llamar al 555555">555555</a></p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="mapa-section" aria-labelledby="mapa-heading">
+            <h2 id="mapa-heading" class="sr-only">Ubicación en el Mapa</h2>
+            <iframe class="maps" 
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d126916.73961650311!2d-75.5812115!3d6.24420345!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8e4428dfb80fad05%3A0x42137cfcc7b53b56!2sMedell%C3%ADn%2C%20Antioquia!5e0!3m2!1ses!2sco!4v1742845265696!5m2!1ses!2sco" 
+                    width="600" 
+                    height="450" 
+                    style="border:0;" 
+                    allowfullscreen="" 
+                    loading="lazy" 
+                    referrerpolicy="no-referrer-when-downgrade"
+                    title="Ubicación en Google Maps"
+                    aria-label="Mapa mostrando la ubicación en Medellín, Antioquia"></iframe>
+        </section>
+    </main>
+
+    <footer role="contentinfo">
+        <div class="footer-content container">
+            <p>&copy; 2024 Guía de Lugares. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+    <!-- Clases de utilidad para accesibilidad -->
+    <style>
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+    </style>
+
+    <script>
+        // Función para manejar la navegación
+        function navegarA(destino) {
+            try {
+                if (destino.startsWith('#')) {
+                    // Si es un ancla, scroll suave
+                    const elemento = document.querySelector(destino);
+                    if (elemento) {
+                        elemento.scrollIntoView({ behavior: 'smooth' });
+                    }
+                } else if (destino === window.location.pathname) {
+                    // Si estamos en la misma página, recargar suavemente
+                    window.location.reload();
+                } else {
+                    // Navegación normal a otra página
+                    window.location.href = destino;
+                }
+            } catch (error) {
+                console.error('Error en la navegación:', error);
+            }
+            return false; // Prevenir comportamiento por defecto
+        }
+
+        // Función para cerrar sesión
+        function cerrarSesion() {
+            try {
+                // Aquí puedes agregar la lógica de cierre de sesión
+                window.location.href = '/login.html';
+            } catch (error) {
+                console.error('Error al cerrar sesión:', error);
+            }
+            return false;
+        }
+
+        // Manejo del menú móvil
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuToggle = document.getElementById('menu-toggle');
+            const mainMenu = document.getElementById('main-menu');
+
+            if (menuToggle && mainMenu) {
+                menuToggle.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const isExpanded = this.getAttribute('aria-expanded') === 'true';
+                    this.setAttribute('aria-expanded', String(!isExpanded));
+                    mainMenu.classList.toggle('active');
+                });
+            }
+
+            // Cerrar menú al hacer clic fuera
+            document.addEventListener('click', function(e) {
+                if (mainMenu && mainMenu.classList.contains('active')) {
+                    if (!mainMenu.contains(e.target) && e.target !== menuToggle) {
+                        mainMenu.classList.remove('active');
+                        menuToggle.setAttribute('aria-expanded', 'false');
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
