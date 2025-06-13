@@ -276,7 +276,11 @@
                         })
                     });
 
-                    const data = await response.json();
+                    let data = null;
+                    const ct = response.headers.get('content-type') || '';
+                    if (ct.includes('application/json')) {
+                        data = await response.json();
+                    }
 
                     if (response.ok) {
                         // Anunciar éxito para lectores de pantalla
@@ -292,14 +296,14 @@
                             window.location.href = '/index.html';
                         }, 1000);
                     } else {
-                        showError(data.message || 'Error al iniciar sesión');
+                        showError(data && data.message ? data.message : 'Error al iniciar sesión');
                     }
                 } catch (error) {
                     console.error('Error detallado:', error);
                     if (!navigator.onLine) {
                         showError('No hay conexión a internet. Por favor, verifica tu conexión.');
                     } else {
-                        showError('Error de conexión con el servidor. Por favor, asegúrate que el servidor esté corriendo en el puerto 3000.');
+                        showError('Error de conexión con el servidor o respuesta inesperada.');
                     }
                 } finally {
                     hideLoading();
