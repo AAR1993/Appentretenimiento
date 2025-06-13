@@ -1,8 +1,11 @@
 package main
 
+
 import (
 	"encoding/json"
+	"log"
 	"net/http"
+	"os"
 )
 
 type Lugar struct {
@@ -135,7 +138,6 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	// Primero matamos cualquier proceso que esté usando el puerto 3000
 	println("Iniciando servidor...")
 
 	http.HandleFunc("/api/lugares", func(w http.ResponseWriter, r *http.Request) {
@@ -164,8 +166,13 @@ func main() {
 	fs := http.FileServer(http.Dir("../frontend"))
 	http.Handle("/", fs)
 
-	println("Servidor corriendo en http://localhost:3000")
-	if err := http.ListenAndServe(":3000", nil); err != nil {
-		panic(err)
+	// Leer puerto de variable de entorno (Render la define)
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "3000"
+	}
+	log.Printf("Servidor corriendo en http://0.0.0.0:%s", port)
+	if err := http.ListenAndServe(":"+port, nil); err != nil {
+		log.Fatal(err)
 	}
 }
