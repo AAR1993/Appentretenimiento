@@ -201,6 +201,8 @@
     </main>
 
     <script>
+        const API_BASE = '/api';
+
         function initLogin() {
             const form = document.getElementById('loginForm');
             const usernameInput = document.getElementById('username');
@@ -263,7 +265,7 @@
                 showLoading();
                 
                 try {
-                    const response = await fetch('/api/login', {
+                    const response = await fetch(`${API_BASE}/login`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
