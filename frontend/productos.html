@@ -69,12 +69,14 @@
     </main>
 
     <script>
+        const API_BASE = '/api';
+
         async function cargarLugares() {
             const listaLugares = document.getElementById('lista-lugares');
             const searchInput = document.getElementById('search-input');
             
             try {
-                const response = await fetch('/api/lugares', {
+                const response = await fetch(`${API_BASE}/lugares`, {
                     method: 'GET',
                     headers: {
                         'Accept': 'application/json',
