@@ -1,6 +1,5 @@
 package main
 
-
 import (
 	"encoding/json"
 	"log"
@@ -71,11 +70,11 @@ func init() {
 func enableCORS(w *http.ResponseWriter) {
 	(*w).Header().Set("Access-Control-Allow-Origin", "*")
 	(*w).Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-	(*w).Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
+	(*w).Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, Cache-Control, X-CSRF-Token, Authorization")
 	(*w).Header().Set("Access-Control-Allow-Credentials", "true")
 }
 
-func getLugares(w http.ResponseWriter) {
+func getLugares(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS")
@@ -95,7 +94,7 @@ func getLugares(w http.ResponseWriter) {
 	}
 }
 
-func getUsuario(w http.ResponseWriter) {
+func getUsuario(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(usuarios["juanp"])
 }
@@ -137,30 +136,24 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]string{"message": "Inicio de sesión exitoso"})
 }
 
-func main() {
-	println("Iniciando servidor...")
-
-	http.HandleFunc("/api/lugares", func(w http.ResponseWriter, r *http.Request) {
-		if r.Method == "OPTIONS" {
-			w.Header().Set("Access-Control-Allow-Origin", "*")
-			w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS")
-			w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type")
-			w.WriteHeader(http.StatusOK)
-			return
-		}
-		getLugares(w)
-	})
-
-	http.HandleFunc("/api/usuario", func(w http.ResponseWriter, r *http.Request) {
+// withCORS envuelve un handler agregando cabeceras CORS y manejando OPTIONS.
+func withCORS(h http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
 		enableCORS(&w)
-		if r.Method == "OPTIONS" {
+		if r.Method == http.MethodOptions {
 			w.WriteHeader(http.StatusOK)
 			return
 		}
-		getUsuario(w)
-	})
+		h(w, r)
+	}
+}
 
-	http.HandleFunc("/api/login", loginHandler)
+func main() {
+	log.Println("Iniciando servidor...")
+
+	http.HandleFunc("/api/lugares", withCORS(getLugares))
+	http.HandleFunc("/api/usuario", withCORS(getUsuario))
+	http.HandleFunc("/api/login", withCORS(loginHandler))
 
 	// Servir archivos estáticos del frontend
 	fs := http.FileServer(http.Dir("../frontend"))
@@ -172,7 +165,5 @@ func main() {
 		port = "3000"
 	}
 	log.Printf("Servidor corriendo en http://0.0.0.0:%s", port)
-	if err := http.ListenAndServe(":"+port, nil); err != nil {
-		log.Fatal(err)
-	}
+	log.Fatal(http.ListenAndServe(":"+port, nil))
 }
