@@ -50,49 +50,49 @@ type Usuario struct {
 	Ubicacion string `json:"ubicacion"`
 }
 
-var lugares []Lugar
-var usuarios = map[string]Usuario{
-	"juanp": {
-		Nombre:    "Alejandro Rivera",
-		Usuario:   "juanp",
-		Password:  "123456",
-		Imagen:    "ruta/a/la/imagen.jpg",
-		Ubicacion: "Ubicacion de Juan",
-	},
-}
+//var lugares []Lugar
+//var usuarios = map[string]Usuario{
+//	"juanp": {
+//		Nombre:    "Alejandro Rivera",
+//		Usuario:   "juanp",
+//		Password:  "123456",
+//		Imagen:    "ruta/a/la/imagen.jpg",
+//		Ubicacion: "Ubicacion de Juan",
+//	},
+//}
 
-func init() {
-	lugares = []Lugar{
-		{
-			"Mombasa Restaurante",
-			"Supper Club Platos de autor y de origen",
-			"https://maps.app.goo.gl/qcszb5tn8m4D42ct8",
-			"imgs/mombasa.png",
-			"9 AM - 10 PM",
-		},
-		{
-			"The Rooftop Garden",
-			"Resto-bar en la ciudad de Medellín, la mejor música, comida, parche futbolero, fiesta ¡Y mucho más!",
-			"https://maps.app.goo.gl/sWGmWEQyCdLzeDU29",
-			"imgs/rooftop.png",
-			"8 AM - 8 PM",
-		},
-		{
-			"La República Restaurante Bar",
-			"Somos un restaurante bar muy Colombiano, donde encuentras comida típica, música crossover, DJ y artistas en vivo los fines de semana, contamos con 10 pantallas gigantes para disfrutar los mejores partidos y demas deportes de todos los gustos.",
-			"https://maps.app.goo.gl/cpzVpHvU5MsAYTfJ8",
-			"imgs/republica.png",
-			"10 AM - 8 PM",
-		},
-		{
-			"37 PARK BISTRÓ BAR",
-			"Almuerzo, Cena, Brunch, Abierto hasta tarde, Bebidas",
-			"https://maps.app.goo.gl/keK58AaMjPgGHpt39",
-			"imgs/37Park.png",
-			"6 PM - 2 AM",
-		},
-	}
-}
+//func init() {
+//	lugares = []Lugar{
+//		{
+//			"Mombasa Restaurante",
+//			"Supper Club Platos de autor y de origen",
+//			"https://maps.app.goo.gl/qcszb5tn8m4D42ct8",
+//			"imgs/mombasa.png",
+//			"9 AM - 10 PM",
+//		},
+//		{
+//			"The Rooftop Garden",
+//			"Resto-bar en la ciudad de Medellín, la mejor música, comida, parche futbolero, fiesta ¡Y mucho más!",
+//			"https://maps.app.goo.gl/sWGmWEQyCdLzeDU29",
+//			"imgs/rooftop.png",
+//			"8 AM - 8 PM",
+//		},
+//		{
+//			"La República Restaurante Bar",
+//			"Somos un restaurante bar muy Colombiano, donde encuentras comida típica, música crossover, DJ y artistas en vivo los fines de semana, contamos con 10 pantallas gigantes para disfrutar los mejores partidos y demas deportes de todos los gustos.",
+//			"https://maps.app.goo.gl/cpzVpHvU5MsAYTfJ8",
+//			"imgs/republica.png",
+//			"10 AM - 8 PM",
+//		},
+//		{
+//			"37 PARK BISTRÓ BAR",
+//			"Almuerzo, Cena, Brunch, Abierto hasta tarde, Bebidas",
+//			"https://maps.app.goo.gl/keK58AaMjPgGHpt39",
+//			"imgs/37Park.png",
+//			"6 PM - 2 AM",
+//		},
+//	}
+//}
 
 func enableCORS(w *http.ResponseWriter) {
 	(*w).Header().Set("Access-Control-Allow-Origin", "*")
@@ -107,24 +107,23 @@ func getLugares(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS")
 	w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type")
 
-	if len(lugares) == 0 {
-		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode([]Lugar{})
-		return
-	}
-
-	err := json.NewEncoder(w).Encode(lugares)
+	lugares, err := ListLugares() // ← leer de la BD
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(map[string]string{"error": "Error al codificar los lugares"})
+		json.NewEncoder(w).Encode(map[string]string{
+			"error": "Error al obtener los lugares",
+		})
 		return
 	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(lugares)
 }
 
-func getUsuario(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(usuarios["juanp"])
-}
+//func getUsuario(w http.ResponseWriter, r *http.Request) {
+//	w.Header().Set("Content-Type", "application/json")
+//	json.NewEncoder(w).Encode(usuarios["juanp"])
+//}
 
 func loginHandler(w http.ResponseWriter, r *http.Request) {
 	enableCORS(&w)
@@ -211,7 +210,6 @@ func createLugarHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	lugar.Imagen = "" // opcional: no retornar imagen base64, etc.
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(map[string]interface{}{
@@ -219,6 +217,7 @@ func createLugarHandler(w http.ResponseWriter, r *http.Request) {
 		"nombre":      lugar.Nombre,
 		"descripcion": lugar.Descripcion,
 		"ubicacion":   lugar.Ubicacion,
+		"imagen":      lugar.Imagen, // ← nuevo
 		"horario":     lugar.Horario,
 	})
 }
@@ -309,7 +308,7 @@ func main() {
 	log.Println("Iniciando servidor...")
 	InitDB()
 	http.HandleFunc("/api/lugares", withCORS(lugaresHandler))
-	http.HandleFunc("/api/usuario", withCORS(getUsuario))
+	//http.HandleFunc("/api/usuario", withCORS(getUsuario))
 	http.HandleFunc("/api/login", withCORS(loginHandler))
 	http.HandleFunc("/api/usuarios", withCORS(registerHandler))
 
