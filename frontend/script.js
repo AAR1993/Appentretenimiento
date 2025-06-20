@@ -5,7 +5,7 @@ const delay = 300; // 300ms de delay antes de hacer la búsqueda
 // Función para cargar todos los lugares
 async function cargarLugares() {
     try {
-        const response = await fetch('/api/lugares');
+        const response = await fetch('https://appentretenimiento-1.onrender.com/api/lugares');
         if (!response.ok) {
             throw new Error('Error al obtener los lugares');
         }
@@ -57,7 +57,7 @@ function buscarLugares(query) {
     // Establecer nuevo timeout
     timeoutId = setTimeout(async () => {
         try {
-            const response = await fetch('/api/lugares');
+            const response = await fetch('https://appentretenimiento-1.onrender.com/api/lugares');
             if (!response.ok) {
                 throw new Error('Error al obtener los lugares');
             }
