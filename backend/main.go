@@ -226,25 +226,29 @@ func createLugarHandler(w http.ResponseWriter, r *http.Request) {
 // Register a new user
 func registerHandler(w http.ResponseWriter, r *http.Request) {
 	enableCORS(&w)
-
+	fmt.Println("registrando usuario")
 	if r.Method == "OPTIONS" {
+		fmt.Println("Entró a options")
 		w.WriteHeader(http.StatusOK)
 		return
 	}
 
 	if r.Method != http.MethodPost {
+		fmt.Println("Entró a post")
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
 	var newUser Usuario
 	if err := json.NewDecoder(r.Body).Decode(&newUser); err != nil {
+		fmt.Printf("Error al decodificar el body %v\n", err)
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
 
 	// Basic validation
 	if newUser.Usuario == "" || newUser.Password == "" || newUser.Nombre == "" {
+		fmt.Println("Error registrando por parametros")
 		http.Error(w, "Username, password, and name are required", http.StatusBadRequest)
 		return
 	}
@@ -258,7 +262,7 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 	// Create the user
 	id, err := CreateUsuario(newUser)
 	if err != nil {
-		log.Printf("Error creating user: %v", err)
+		fmt.Printf("Error creating user: %v", err)
 		http.Error(w, "Error creating user", http.StatusInternalServerError)
 		return
 	}
