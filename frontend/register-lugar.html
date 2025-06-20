@@ -1,0 +1,52 @@
+<!DOCTYPE html><html lang="es"><head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>Registrar Lugar</title><link rel="stylesheet" href="style.css">
+    <style>
+        :root{--primary:#2E7D32;--error:#D32F2F;}
+        .container{max-width:500px;margin:80px auto;padding:2rem;background:#fff;border-radius:8px;box-shadow:0 2px 4px rgba(0,0,0,.1);}
+        h1{text-align:center;margin-bottom:1rem;}
+        .form-group{margin-bottom:1rem;}
+        .form-group label{display:block;margin-bottom:.3rem;}
+        .form-group input,.form-group textarea{width:100%;padding:.6rem;border:1px solid #ccc;border-radius:4px;}
+        .btn{width:100%;padding:.8rem;background:var(--primary);color:#fff;border:none;border-radius:4px;cursor:pointer;}
+        .msg{margin-top:1rem;text-align:center;}
+    </style></head><body>
+
+<main class="container">
+    <h1>Nuevo Lugar</h1>
+    <form id="lugarForm">
+        <div class="form-group"><label>Nombre</label><input id="nombre" required></div>
+        <div class="form-group"><label>Descripción</label><textarea id="descripcion" required></textarea></div>
+        <div class="form-group"><label>Ubicación (URL)</label><input id="ubicacion"></div>
+        <div class="form-group"><label>Imagen (URL)</label><input id="imagen"></div>
+        <div class="form-group"><label>Horario</label><input id="horario"></div>
+        <button type="submit" class="btn">Guardar</button>
+        <div id="msg" class="msg" role="alert" aria-live="polite"></div>
+    </form>
+    <p style="text-align:center;margin-top:1rem;"><a href="index.html">Volver al inicio</a></p>
+</main>
+
+<script>
+    const API='/api/lugares';
+    document.getElementById('lugarForm').addEventListener('submit',async e=>{
+        e.preventDefault();
+        const nombre=document.getElementById('nombre').value.trim();
+        const descripcion=document.getElementById('descripcion').value.trim();
+        const ubicacion=document.getElementById('ubicacion').value.trim();
+        const imagen=document.getElementById('imagen').value.trim();
+        const horario=document.getElementById('horario').value.trim();
+        const msg=document.getElementById('msg');
+        if(!nombre||!descripcion){msg.style.color='var(--error)';msg.textContent='Nombre y descripción son obligatorios';return;}
+        try{
+            const res=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nombre: nombre, descripcion, ubicacion, imagen, horario})});
+            const data=await res.json();
+            if(res.ok){
+                msg.style.color='var(--primary)';msg.textContent='Lugar creado con ID '+data.id;
+                setTimeout(()=>location.href='index.html',1500);
+            }else{
+                msg.style.color='var(--error)';msg.textContent=data.error||'Error al crear lugar';
+            }
+        }catch(err){msg.style.color='var(--error)';msg.textContent='Fallo de conexión';}
+    });
+</script>
+</body></html>

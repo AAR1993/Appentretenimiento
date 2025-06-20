@@ -1,11 +1,38 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
+	"fmt"
+	_ "github.com/lib/pq" // ← nuevo driver
 	"log"
 	"net/http"
 	"os"
 )
+
+// DB es la conexión global que usarán los repositorios.
+var DB *sql.DB
+
+// InitDB abre la conexión y realiza un ping para validar que esté viva.
+func InitDB() {
+	// Obtén DSN de variables de entorno:  user:pass@tcp(host:port)/dbname?parseTime=true
+	dsn := os.Getenv("MYSQL_DSN")
+	if dsn == "" {
+		// Ejemplo local por defecto
+		dsn = "postgresql://alejandro:W29nP10f5i1m7lwmiODFHKW6k8ItZrxt@dpg-d1910s15pdvs73dqvn80-a.oregon-postgres.render.com/entretenimiento"
+	}
+
+	var err error
+	DB, err = sql.Open("postgres", dsn)
+	if err != nil {
+		log.Fatalf("abriendo BD: %v", err)
+	}
+
+	if err = DB.Ping(); err != nil {
+		log.Fatalf("ping BD: %v", err)
+	}
+	fmt.Println("Conexión a PostgreSQL exitosa")
+}
 
 type Lugar struct {
 	Nombre      string `json:"nombre"`
@@ -125,15 +152,128 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, exists := usuarios[loginData.Username]
-	if !exists || user.Password != loginData.Password {
+	// Get user from database
+	user, err := GetUsuarioByUsername(loginData.Username)
+	if err != nil {
+		// User not found or other error
 		w.WriteHeader(http.StatusUnauthorized)
 		json.NewEncoder(w).Encode(map[string]string{"message": "Usuario o contraseña incorrectos"})
 		return
 	}
 
+	// Verify password (plain text comparison - in production, use bcrypt)
+
+	if user.Password != loginData.Password {
+		w.WriteHeader(http.StatusUnauthorized)
+		json.NewEncoder(w).Encode(map[string]string{"message": "Usuario o contraseña incorrectos"})
+		return
+	}
+
+	// Login successful
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]string{"message": "Inicio de sesión exitoso"})
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"message": "Inicio de sesión exitoso",
+		"user": map[string]interface{}{
+			"nombre":    user.Nombre,
+			"usuario":   user.Usuario,
+			"imagen":    user.Imagen,
+			"ubicacion": user.Ubicacion,
+		},
+	})
+}
+
+func createLugarHandler(w http.ResponseWriter, r *http.Request) {
+	enableCORS(&w)
+	if r.Method == http.MethodOptions {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var lugar Lugar
+	if err := json.NewDecoder(r.Body).Decode(&lugar); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+	// Validaciones mínimas
+	if lugar.Nombre == "" || lugar.Descripcion == "" {
+		http.Error(w, "Nombre y descripción son obligatorios", http.StatusBadRequest)
+		return
+	}
+
+	id, err := CreateLugar(lugar)
+	if err != nil {
+		log.Printf("Error creando lugar: %v", err)
+		http.Error(w, "Error creando lugar", http.StatusInternalServerError)
+		return
+	}
+
+	lugar.Imagen = "" // opcional: no retornar imagen base64, etc.
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"id":          id,
+		"nombre":      lugar.Nombre,
+		"descripcion": lugar.Descripcion,
+		"ubicacion":   lugar.Ubicacion,
+		"horario":     lugar.Horario,
+	})
+}
+
+// Register a new user
+func registerHandler(w http.ResponseWriter, r *http.Request) {
+	enableCORS(&w)
+
+	if r.Method == "OPTIONS" {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var newUser Usuario
+	if err := json.NewDecoder(r.Body).Decode(&newUser); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	// Basic validation
+	if newUser.Usuario == "" || newUser.Password == "" || newUser.Nombre == "" {
+		http.Error(w, "Username, password, and name are required", http.StatusBadRequest)
+		return
+	}
+
+	// Check if username already exists
+	if _, err := GetUsuarioByUsername(newUser.Usuario); err == nil {
+		http.Error(w, "Username already exists", http.StatusConflict)
+		return
+	}
+
+	// Create the user
+	id, err := CreateUsuario(newUser)
+	if err != nil {
+		log.Printf("Error creating user: %v", err)
+		http.Error(w, "Error creating user", http.StatusInternalServerError)
+		return
+	}
+
+	// Return the created user (without password)
+	newUser.Password = "" // Don't return the password
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"id":        id,
+		"usuario":   newUser.Usuario,
+		"nombre":    newUser.Nombre,
+		"imagen":    newUser.Imagen,
+		"ubicacion": newUser.Ubicacion,
+	})
 }
 
 // withCORS envuelve un handler agregando cabeceras CORS y manejando OPTIONS.
@@ -148,12 +288,26 @@ func withCORS(h http.HandlerFunc) http.HandlerFunc {
 	}
 }
 
+func lugaresHandler(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodGet:
+		getLugares(w, r)
+	case http.MethodPost:
+		createLugarHandler(w, r)
+	case http.MethodOptions:
+		w.WriteHeader(http.StatusOK)
+	default:
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+	}
+}
+
 func main() {
 	log.Println("Iniciando servidor...")
-
-	http.HandleFunc("/api/lugares", withCORS(getLugares))
+	InitDB()
+	http.HandleFunc("/api/lugares", withCORS(lugaresHandler))
 	http.HandleFunc("/api/usuario", withCORS(getUsuario))
 	http.HandleFunc("/api/login", withCORS(loginHandler))
+	http.HandleFunc("/api/usuarios", withCORS(registerHandler))
 
 	// Servir archivos estáticos del frontend
 	fs := http.FileServer(http.Dir("../frontend"))
