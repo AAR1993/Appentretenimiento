@@ -3,11 +3,13 @@ package main
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 )
 
 // ----------  LUGARES ----------
 
 func CreateLugar(l Lugar) (int64, error) {
+	fmt.Println()
 	var id int64
 	err := DB.QueryRow(
 		`INSERT INTO lugar (nombre, descripcion, ubicacion, imagen, horario)
@@ -66,6 +68,7 @@ func ListLugares() ([]Lugar, error) {
 // ----------  USUARIOS ----------
 
 func CreateUsuario(u Usuario) (int64, error) {
+	fmt.Println("entre en el repository de user")
 	var id int64
 	err := DB.QueryRow(
 		`INSERT INTO usuario (nombre, usuario, password, imagen, ubicacion)
@@ -73,6 +76,7 @@ func CreateUsuario(u Usuario) (int64, error) {
 		u.Nombre, u.Usuario, u.Password, u.Imagen, u.Ubicacion,
 	).Scan(&id)
 	if err != nil {
+		fmt.Println("error guardando el user")
 		return 0, err
 	}
 	return id, err
