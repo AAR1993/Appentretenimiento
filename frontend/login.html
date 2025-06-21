@@ -286,6 +286,7 @@
 
                     if (response.ok) {
                         // Anunciar éxito para lectores de pantalla
+                        localStorage.setItem('logged_in', 'yes');
                         const successMessage = document.createElement('div');
                         successMessage.setAttribute('role', 'status');
                         successMessage.setAttribute('aria-live', 'polite');

@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Descubre los mejores lugares para visitar, incluyendo restaurantes, centros comerciales, miradores y bares">
     <title>Guía de Lugares - Inicio</title>
+    <script src="auth-guard.js"></script>
     <link rel="stylesheet" href="style.css">
     <script src="script.js" defer></script>
 </head>
@@ -244,12 +245,8 @@
 
         // Función para cerrar sesión
         function cerrarSesion() {
-            try {
-                // Aquí puedes agregar la lógica de cierre de sesión
-                window.location.href = '/login.html';
-            } catch (error) {
-                console.error('Error al cerrar sesión:', error);
-            }
+            localStorage.removeItem('logged_in');  // ← borra flag
+            window.location.href = '/login.html';
             return false;
         }
 
